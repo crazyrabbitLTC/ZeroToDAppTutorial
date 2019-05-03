@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { PublicAddress, Blockie } from "rimble-ui";
+import { PublicAddress, Blockie, Button, Input } from "rimble-ui";
 import styles from "./NFTToken.module.scss";
 import { isArray } from "util";
 import { DH_CHECK_P_NOT_SAFE_PRIME } from "constants";
@@ -14,30 +14,18 @@ export default class NFTToken extends Component {
   componentDidMount = async () => {
     const { networkId, accounts, balance, isMetaMask, contract } = this.props;
     let userBalance = await contract.methods.balanceOf(accounts[0]).call();
-    let userTokens;
     let totalSupply = await contract.methods.totalSupply().call();
-
-    const contractEvents = [];
-
-    const getEvent = event => {
-      const obj = {
-        to: event.returnValues.to,
-        from: event.returnValues.from,
-        tokenId: event.returnValues.tokenId
-      };
-      contractEvents.push(obj);
-    };
-
     const filterTo = { to: accounts[0] };
     const filterFrom = { from: accounts[0] };
+    let userTokens;
 
-    const transfersToUser = await contract.getPastEvents("Transfer", {
+    const countTransfersToAddress = await contract.getPastEvents("Transfer", {
       filter: filterTo,
       fromBlock: 0,
       toBlock: "latest"
     });
 
-    const transfersFromUser = await contract.getPastEvents("Transfer", {
+    const countTransfersFromAddress = await contract.getPastEvents("Transfer", {
       filter: filterFrom,
       fromBlock: 0,
       toBlock: "latest"
@@ -61,8 +49,8 @@ export default class NFTToken extends Component {
 
       return Object.keys(obj);
     };
-
-    userTokens = getUserTokenBalance(transfersToUser, transfersFromUser);
+    
+    userTokens = getUserTokenBalance(countTransfersToAddress, countTransfersFromAddress);
 
     this.setState({ ...this.state, totalSupply, userBalance, userTokens });
   };
@@ -70,6 +58,25 @@ export default class NFTToken extends Component {
   listTokens = list => {
     list.map();
   };
+
+  mintToken = async (event) => {
+    console.log("Click eVent: ", event);
+    const { accounts, contract, web3} = this.props;
+    let color = '#'+Math.floor(Math.random()*16777215).toString(16);
+    let background = '#'+Math.floor(Math.random()*16777215).toString(16);
+    let seed = web3.utils.randomHex(32);
+    let uri = {seed, color, background};
+    uri = JSON.stringify(uri);
+
+    let tokenId = this.state.totalSupply+1;
+    console.log("Here!");
+    try {
+      let mint = await contract.methods.mintWithTokenURI(accounts[0],tokenId, uri).send({from: accounts[0], gas: 5000000});
+      console.log(mint);
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   render() {
     const { userTokens, contract } = this.props;
@@ -86,11 +93,17 @@ export default class NFTToken extends Component {
           <div className={styles.tokenList}>
             {this.state.userTokens.map((item, i) => (
               <div className={styles.token}>
-                <Blockie opts={{ seed: item, size: 15, scale: 3 }} />
+                <Blockie opts={{ seed: item, color: "#dfe", bgcolor: "#a71", size: 15, scale: 3 }} />
               </div>
             ))}
           </div>
         </div>
+        <div>
+        <Input type="text" placeholder="...ETH address" />
+          <Button onClick={(event) => this.mintToken(event)}>Mint Token</Button>
+          <Button >Send Token</Button>
+        </div>
+
         {/* <h3> Your Web3 Info </h3>
         <div className={styles.dataPoint}>
           <div className={styles.label}>
