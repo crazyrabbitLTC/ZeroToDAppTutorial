@@ -49,34 +49,33 @@ export default class NFTToken extends Component {
 
       return Object.keys(obj);
     };
-    
-    userTokens = getUserTokenBalance(countTransfersToAddress, countTransfersFromAddress);
+
+    userTokens = getUserTokenBalance(
+      countTransfersToAddress,
+      countTransfersFromAddress
+    );
 
     this.setState({ ...this.state, totalSupply, userBalance, userTokens });
   };
 
-  listTokens = list => {
-    list.map();
-  };
-
-  mintToken = async (event) => {
-    console.log("Click eVent: ", event);
-    const { accounts, contract, web3} = this.props;
-    let color = '#'+Math.floor(Math.random()*16777215).toString(16);
-    let background = '#'+Math.floor(Math.random()*16777215).toString(16);
+  mintToken = async event => {
+    const { accounts, contract, web3 } = this.props;
+    let color = "#" + Math.floor(Math.random() * 16777215).toString(16);
+    let background = "#" + Math.floor(Math.random() * 16777215).toString(16);
     let seed = web3.utils.randomHex(32);
-    let uri = {seed, color, background};
+    let uri = { seed, color, background };
     uri = JSON.stringify(uri);
 
-    let tokenId = this.state.totalSupply+1;
-    console.log("Here!");
+    let tokenId = this.state.totalSupply + 1;
+
     try {
-      let mint = await contract.methods.mintWithTokenURI(accounts[0],tokenId, uri).send({from: accounts[0], gas: 5000000});
-      console.log(mint);
+      let mint = await contract.methods
+        .mintWithTokenURI(accounts[0], tokenId, uri)
+        .send({ from: accounts[0], gas: 5000000 });
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
+  };
 
   render() {
     const { userTokens, contract } = this.props;
@@ -93,15 +92,23 @@ export default class NFTToken extends Component {
           <div className={styles.tokenList}>
             {this.state.userTokens.map((item, i) => (
               <div className={styles.token}>
-                <Blockie opts={{ seed: item, color: "#dfe", bgcolor: "#a71", size: 15, scale: 3 }} />
+                <Blockie
+                  opts={{
+                    seed: item,
+                    color: "#dfe",
+                    bgcolor: "#a71",
+                    size: 15,
+                    scale: 3
+                  }}
+                />
               </div>
             ))}
           </div>
         </div>
         <div>
-        <Input type="text" placeholder="...ETH address" />
-          <Button onClick={(event) => this.mintToken(event)}>Mint Token</Button>
-          <Button >Send Token</Button>
+          <Input type="text" placeholder="...ETH address" />
+          <Button onClick={event => this.mintToken(event)}>Mint Token</Button>
+          <Button>Send Token</Button>
         </div>
 
         {/* <h3> Your Web3 Info </h3>
