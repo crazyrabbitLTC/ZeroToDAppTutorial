@@ -33,13 +33,9 @@ contract("NFTToken", async ([_, owner, ...otherAccounts]) => {
   });
 
   it("should mint a NFT with URI ", async () => {
-    
-
-    supply = await NFT.totalSupply();
-    
-    const tx = await NFT.mintWithTokenURI(owner, supply.toNumber()+1, tokenURI, {from: owner});
-    (await NFT.totalSupply().should.equal(oneBN));
-    (await NFT.tokenURI(supply.add(1)).should.equal(tokenURI));
+    const tokenId = 1;
+    (await NFT.mintWithTokenURI(owner, tokenId, tokenURI, {from: owner}));
+    (await NFT.tokenURI(tokenId)).should.equal(tokenURI);
   });
 
 
