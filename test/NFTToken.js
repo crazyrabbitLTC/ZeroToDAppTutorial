@@ -4,7 +4,7 @@ const should = require('chai').should();
 const NFTToken = artifacts.require('NFTToken');
 
 contract("NFTToken", async ([_, owner, ...otherAccounts]) => {
-  let NFT;
+  let 
   const tokenName = "NFTToken";
   const tokenSymbol = "NFT";
   const minters = [owner];

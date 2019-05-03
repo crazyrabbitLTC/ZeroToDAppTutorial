@@ -1,0 +1,8 @@
+{
+  "zosversion": "2.2",
+  "name": "TokenWallet",
+  "version": "0.0.1",
+  "contracts": {
+    "NFTToken": "NFTToken"
+  }
+}
