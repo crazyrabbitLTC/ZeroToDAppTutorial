@@ -1,0 +1,46 @@
+const { BN, constants, expectEvent, shouldFail } = require('openzeppelin-test-helpers');
+const should = require('chai').should();
+
+const NFTToken = artifacts.require('NFTToken');
+
+contract("NFTToken", async ([_, owner, ...otherAccounts]) => {
+  let NFT;
+  const value = new BN(9999);
+  const oneBN = new BN(1);
+  let supply = new BN(0);
+  const tokenName = "NFTToken";
+  const tokenSymbol = "NFT";
+  const minters = [owner];
+  const pausers = [owner];
+  const tokenURI = "Test URI";
+
+  before(async function () {
+    NFT = await NFTToken.new();
+
+    NFT.methods["initialize(string,string,address[],address[])"](tokenName,tokenSymbol,minters,pausers, { from: owner, gas: 5000000 });
+  });
+  
+  it("should have proper owner", async () => {
+    (await NFT.owner()).should.equal(owner);
+  });
+
+  it("should have proper name", async () => {
+    (await NFT.name()).should.equal(tokenName);
+  });
+
+  it("should have proper symbol", async () => {
+    (await NFT.symbol()).should.equal(tokenSymbol);
+  });
+
+  it("should mint a NFT with URI ", async () => {
+    
+
+    supply = await NFT.totalSupply();
+    
+    const tx = await NFT.mintWithTokenURI(owner, supply.toNumber()+1, tokenURI, {from: owner});
+    (await NFT.totalSupply().should.equal(oneBN));
+    (await NFT.tokenURI(supply.add(1)).should.equal(tokenURI));
+  });
+
+
+});
