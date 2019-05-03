@@ -92,7 +92,7 @@ export default class NFTToken extends Component {
           <div className={styles.tokenList}>
             {this.state.userTokens.map((item, i) => (
               <div className={styles.token}>
-                <Blockie
+                <Blockie className={styles.token}
                   opts={{
                     seed: item,
                     color: "#dfe",
