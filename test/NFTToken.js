@@ -5,9 +5,6 @@ const NFTToken = artifacts.require('NFTToken');
 
 contract("NFTToken", async ([_, owner, ...otherAccounts]) => {
   let NFT;
-  const value = new BN(9999);
-  const oneBN = new BN(1);
-  let supply = new BN(0);
   const tokenName = "NFTToken";
   const tokenSymbol = "NFT";
   const minters = [owner];
