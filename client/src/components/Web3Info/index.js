@@ -20,7 +20,7 @@ export default class Web3Info extends Component {
   }
 
   render()  {
-    const { networkId, accounts, balance, isMetaMask } = this.props;
+    const { networkId, accounts, balance, isMetaMask, contract } = this.props;
     return (
       <div className={styles.web3}>
         <h3> Your Web3 Info </h3>
