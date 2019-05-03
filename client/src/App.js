@@ -99,9 +99,7 @@ class App extends Component {
     }
     return (
       <div className={styles.App}>
-        <h1>Good to Go!</h1>
-        <p>Zepkit has created your app.</p>
-        <h2>See your web3 info below:</h2>
+        <h1>Token Wallet</h1>
         {/* <Web3Info {...this.state} /> */}
         <NFTToken {...this.state}/>
       </div>

@@ -18,7 +18,7 @@
   }
 
   .dataPoint {
-    display: flex;
+    //display: flex;
     flex-flow: column nowrap;
     align-items: flex-start;
     margin: 5px 0;
@@ -39,5 +39,12 @@
       justify-content: space-between;
       align-items: baseline;
     }
+
+  }
+  .tokenList{
+    display: flex;
+  }
+  .token {
+    margin: 4px;
   }
 }

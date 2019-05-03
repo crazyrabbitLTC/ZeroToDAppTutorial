@@ -67,9 +67,9 @@ export default class NFTToken extends Component {
     this.setState({ ...this.state, totalSupply, userBalance, userTokens });
   };
 
-  listTokens = (list) => {
-    list.map()
-  }
+  listTokens = list => {
+    list.map();
+  };
 
   render() {
     const { userTokens, contract } = this.props;
@@ -83,7 +83,13 @@ export default class NFTToken extends Component {
         </div>
         <div className={styles.dataPoint}>
           <div className={styles.label}>Tokens:</div>
-          {this.state.userTokens.map((item,i) => <li key={i}>{item}</li>)}
+          <div className={styles.tokenList}>
+            {this.state.userTokens.map((item, i) => (
+              <div className={styles.token}>
+                <Blockie opts={{ seed: item, size: 15, scale: 3 }} />
+              </div>
+            ))}
+          </div>
         </div>
         {/* <h3> Your Web3 Info </h3>
         <div className={styles.dataPoint}>
