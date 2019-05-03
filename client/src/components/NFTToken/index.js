@@ -8,7 +8,9 @@ export default class NFTToken extends Component {
   state = {
     totalSupply: 0,
     userBalance: 0,
-    userTokens: []
+    userTokens: [],
+    addressBar: "...ETH Address",
+    tokenId: ""
   };
 
   componentDidMount = async () => {
@@ -40,13 +42,24 @@ export default class NFTToken extends Component {
           obj[el.returnValues.tokenId] = 1;
         }
       });
+      console.log(obj);
 
       from.forEach(el => {
         if (obj[el.returnValues.tokenId]) {
           obj[el.returnValues.tokenId] -= 1;
         }
       });
+      console.log(obj);
 
+      for(let key in obj){
+        if(obj.hasOwnProperty(key)){
+          if (obj[key] === 0) {
+            delete obj[key];
+          }
+        }
+      }
+      console.log(obj);
+      
       return Object.keys(obj);
     };
 
@@ -56,6 +69,33 @@ export default class NFTToken extends Component {
     );
 
     this.setState({ ...this.state, totalSupply, userBalance, userTokens });
+  };
+
+  handleChange = event => {
+    console.log("The change is: ", event.target.value);
+    this.setState({ ...this.state, addressBar: event.target.value });
+  };
+
+  handleSubmit = async event => {
+    event.preventDefault();
+    const { accounts, contract, web3 } = this.props;
+
+    if (web3.utils.isAddress(this.state.addressBar)) {
+      let tx = contract.methods
+        .transferFrom(accounts[0], this.state.addressBar, this.state.tokenId)
+        .send({ from: accounts[0], gas: 5000000 });
+      console.log(tx);
+      this.setState({ ...this.state, addressBar: "" });
+    } else {
+      let addressBar = "Invalid Address";
+      this.setState({ ...this.state, addressBar });
+    }
+  };
+
+  handleSelect = event => {
+    let tokenId = event;
+    console.log("Clicked token is: ", tokenId);
+    this.setState({ ...this.state, tokenId });
   };
 
   mintToken = async event => {
@@ -91,8 +131,12 @@ export default class NFTToken extends Component {
           <div className={styles.label}>Tokens:</div>
           <div className={styles.tokenList}>
             {this.state.userTokens.map((item, i) => (
-              <div className={styles.token}>
-                <Blockie className={styles.token}
+              <div
+                className={styles.token}
+                onClick={event => this.handleSelect(item)}
+              >
+                <Blockie
+                  className={styles.token}
                   opts={{
                     seed: item,
                     color: "#dfe",
@@ -106,9 +150,22 @@ export default class NFTToken extends Component {
           </div>
         </div>
         <div>
-          <Input type="text" placeholder="...ETH address" />
+          <form>
+            <label>
+              Name:
+              <Input
+                type="text"
+                placeholder={this.state.addressBar}
+                name="name"
+                onChange={this.handleChange}
+              />
+            </label>
+            <input type="submit" value="Submit" />
+          </form>
           <Button onClick={event => this.mintToken(event)}>Mint Token</Button>
-          <Button>Send Token</Button>
+          <Button onClick={event => this.handleSubmit(event)} value="Submit">
+            Send Token
+          </Button>
         </div>
 
         {/* <h3> Your Web3 Info </h3>

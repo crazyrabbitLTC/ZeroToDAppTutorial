@@ -100,6 +100,7 @@ class App extends Component {
     return (
       <div className={styles.App}>
         <h1>Token Wallet</h1>
+
         {/* <Web3Info {...this.state} /> */}
         <NFTToken {...this.state}/>
       </div>
