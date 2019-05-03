@@ -67,8 +67,12 @@ export default class NFTToken extends Component {
     this.setState({ ...this.state, totalSupply, userBalance, userTokens });
   };
 
+  listTokens = (list) => {
+    list.map()
+  }
+
   render() {
-    const { networkId, accounts, balance, isMetaMask, contract } = this.props;
+    const { userTokens, contract } = this.props;
     // console.dir(contract);
     return (
       <div className={styles.web3}>
@@ -76,6 +80,10 @@ export default class NFTToken extends Component {
         <div className={styles.dataPoint}>
           <div className={styles.label}>Contract Address:</div>
           <div className={styles.valueSmall}>{contract._address}</div>
+        </div>
+        <div className={styles.dataPoint}>
+          <div className={styles.label}>Tokens:</div>
+          {this.state.userTokens.map((item,i) => <li key={i}>{item}</li>)}
         </div>
         {/* <h3> Your Web3 Info </h3>
         <div className={styles.dataPoint}>
