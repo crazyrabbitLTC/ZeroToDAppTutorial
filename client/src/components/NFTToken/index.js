@@ -1,8 +1,6 @@
 import React, { Component } from "react";
-import { PublicAddress, Blockie, Button, Input } from "rimble-ui";
+import { Blockie, Button, Input } from "rimble-ui";
 import styles from "./NFTToken.module.scss";
-import { isArray } from "util";
-import { DH_CHECK_P_NOT_SAFE_PRIME } from "constants";
 
 export default class NFTToken extends Component {
   state = {
@@ -12,7 +10,6 @@ export default class NFTToken extends Component {
     addressBar: "...ETH Address",
     tokenId: "",
     lastCheckedBlock: null,
-    tokensLoaded: false,
     userTokenURIs: {}
   };
 
@@ -21,11 +18,12 @@ export default class NFTToken extends Component {
 
   componentDidMount = async () => {
     await this.userTokenBalance();
-    await this.refreshOnTokenTrasnfer();
+    await this.refreshOnTokenTransfer();
   };
 
-  async refreshOnTokenTrasnfer() {
+  async refreshOnTokenTransfer() {
     const { accounts, contract } = this.props;
+    const { userTokens } = this.state;
     const filterTo = { to: accounts[0] };
     const filterFrom = { from: accounts[0] };
 
@@ -35,8 +33,7 @@ export default class NFTToken extends Component {
         fromBlock: this.state.lastCheckedBlock + 1
       })
       .on("data", event => {
-        // Check out your Event
-        // console.log(event);
+        this.userTokenBalance();
       });
 
     const from = await contract.events
@@ -45,8 +42,7 @@ export default class NFTToken extends Component {
         fromBlock: this.state.lastCheckedBlock + 1
       })
       .on("data", event => {
-        // Check out your Event
-        // console.log(event);
+        this.userTokenBalance();
       });
 
     //Store your subscriptions to be unsubscribed at unmounting
@@ -183,7 +179,7 @@ export default class NFTToken extends Component {
     let tokenId = Number(this.state.totalSupply) + 1;
 
     try {
-      let mint = await contract.methods
+      await contract.methods
         .mintWithTokenURI(accounts[0], tokenId, uri)
         .send({ from: accounts[0], gas: 5000000 });
     } catch (error) {
@@ -208,13 +204,12 @@ export default class NFTToken extends Component {
           <div className={styles.valueSmall}>{contract._address}</div>
         </div>
         <div className={styles.dataPoint}>
-          <div className={styles.label}>Tokens:</div>
           <div className={styles.tokenList}>
             {userTokens.map((item, i) => {
               return (
                 <div
                   className={styles.token}
-                  key={i}
+                  key={userTokenURIs[item].seed}
                   onClick={event => this.handleSelectToken(item)}
                 >
                   <Blockie
@@ -224,7 +219,7 @@ export default class NFTToken extends Component {
                       color: userTokenURIs[item].color,
                       bgcolor: userTokenURIs[item].bgcolor,
                       size: 15,
-                      scale: 3
+                      scale: 5
                     }}
                   />
                 </div>
