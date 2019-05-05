@@ -33,6 +33,14 @@ export default class NFTToken extends Component {
       this.forceUpdate();
     })
 
+    await contract.events.Transfer({
+      filter: filterFrom,
+      fromBlock: this.state.lastCheckedBlock + 1,  
+    }).on('data', (event) => {
+      console.log(event);
+      this.forceUpdate();
+    })
+
   }
   async getUserTokenBalance() {
     const { accounts, contract, web3 } = this.props;
