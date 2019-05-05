@@ -18,13 +18,12 @@ export default class NFTToken extends Component {
   subscriptionFrom = null;
 
   componentDidMount = async () => {
-    await this.getUserTokenBalance();
+    await this.userTokenBalance();
     await this.refreshOnTokenTrasnfer();
   };
 
   async refreshOnTokenTrasnfer() {
     const { accounts, contract } = this.props;
-    console.log("in refresh on trasnfer");
     const filterTo = { to: accounts[0] };
     const filterFrom = { from: accounts[0] };
 
@@ -56,11 +55,7 @@ export default class NFTToken extends Component {
     //console.log("TO/FROM: ", to, from);
   }
 
-  componentWillUnmount(){
-    if(this.subscriptionFrom) this.subscriptionFrom.unsubscribe(); 
-    if(this.subscriptionTo) this.subscriptionTo.unsubscribe(); 
-  }
-  async getUserTokenBalance() {
+  async userTokenBalance() {
     const { accounts, contract, web3 } = this.props;
     let userBalance = await contract.methods.balanceOf(accounts[0]).call();
     let totalSupply = await contract.methods.totalSupply().call();
@@ -68,6 +63,7 @@ export default class NFTToken extends Component {
     const filterFrom = { from: accounts[0] };
     const lastCheckedBlock = await web3.eth.getBlockNumber();
     let userTokens;
+
     //Get the list of tokens sent to this address
     const countTransfersToAddress = await contract.getPastEvents("Transfer", {
       filter: filterTo,
@@ -83,7 +79,7 @@ export default class NFTToken extends Component {
     });
 
     //Function to Calculate the Total Users Balance
-    const getUserTokenBalance = (to, from) => {
+    const getTokenBalance = (to, from) => {
       let obj = {};
       to.forEach(el => {
         if (obj[el.returnValues.tokenId]) {
@@ -92,14 +88,12 @@ export default class NFTToken extends Component {
           obj[el.returnValues.tokenId] = 1;
         }
       });
-      console.log(obj);
 
       from.forEach(el => {
         if (obj[el.returnValues.tokenId]) {
           obj[el.returnValues.tokenId] -= 1;
         }
       });
-      console.log(obj);
 
       for (let key in obj) {
         if (obj.hasOwnProperty(key)) {
@@ -108,18 +102,15 @@ export default class NFTToken extends Component {
           }
         }
       }
-      console.log(obj);
 
       return Object.keys(obj);
     };
 
     //Get Users token balance
-    userTokens = getUserTokenBalance(
+    userTokens = getTokenBalance(
       countTransfersToAddress,
       countTransfersFromAddress
     );
-
-    //
 
     this.setState({
       ...this.state,
@@ -130,12 +121,12 @@ export default class NFTToken extends Component {
     });
   }
 
-  handleChange = event => {
+  handleAddressBarChange = event => {
     console.log("The change is: ", event.target.value);
     this.setState({ ...this.state, addressBar: event.target.value });
   };
 
-  handleSubmit = async event => {
+  handleSendTokenSubmit = async event => {
     event.preventDefault();
     const { accounts, contract, web3 } = this.props;
 
@@ -151,13 +142,12 @@ export default class NFTToken extends Component {
     }
   };
 
-  handleSelect = event => {
+  handleSelectToken = event => {
     let tokenId = event;
-    console.log("Clicked token is: ", tokenId);
     this.setState({ ...this.state, tokenId });
   };
 
-  mintToken = async event => {
+  handleMintToken = async event => {
     const { accounts, contract, web3 } = this.props;
     let color = "#" + Math.floor(Math.random() * 16777215).toString(16);
     let background = "#" + Math.floor(Math.random() * 16777215).toString(16);
@@ -176,9 +166,13 @@ export default class NFTToken extends Component {
     }
   };
 
+  componentWillUnmount() {
+    if (this.subscriptionFrom) this.subscriptionFrom.unsubscribe();
+    if (this.subscriptionTo) this.subscriptionTo.unsubscribe();
+  }
+
   render() {
     const { userTokens, contract } = this.props;
-    // console.dir(contract);
     return (
       <div className={styles.web3}>
         <h3>NFT Token Wallet:</h3>
@@ -192,7 +186,7 @@ export default class NFTToken extends Component {
             {this.state.userTokens.map((item, i) => (
               <div
                 className={styles.token}
-                onClick={event => this.handleSelect(item)}
+                onClick={event => this.handleSelectToken(item)}
               >
                 <Blockie
                   className={styles.token}
@@ -220,13 +214,17 @@ export default class NFTToken extends Component {
                 type="text"
                 placeholder={this.state.addressBar}
                 name="name"
-                onChange={this.handleChange}
+                onChange={this.handleAddressBarChange}
               />
             </label>
-            <input type="submit" value="Submit" />
           </form>
-          <Button onClick={event => this.mintToken(event)}>Mint Token</Button>
-          <Button onClick={event => this.handleSubmit(event)} value="Submit">
+          <Button onClick={event => this.handleMintToken(event)}>
+            Mint Token
+          </Button>
+          <Button
+            onClick={event => this.handleSendTokenSubmit(event)}
+            value="Submit"
+          >
             Send Token
           </Button>
         </div>
