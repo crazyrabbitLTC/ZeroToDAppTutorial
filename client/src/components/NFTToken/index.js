@@ -52,9 +52,7 @@ export default class NFTToken extends Component {
     //Store your subscriptions to be unsubscribed at unmounting
     this.subscriptionTo = to;
     this.subscriptionFrom = from;
-
-    //Here are your subscriptions for cleanup
-    //console.log("TO/FROM: ", to, from);
+    
   }
 
   async userTokenBalance() {

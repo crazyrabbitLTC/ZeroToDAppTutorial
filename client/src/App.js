@@ -13,7 +13,7 @@ class App extends Component {
     accounts: null,
     contract: null,
     route: window.location.pathname.replace("/", ""),
-    appReady: false,
+    appReady: false
   };
 
   getGanacheAddresses = async () => {
@@ -50,7 +50,6 @@ class App extends Component {
         let deployedNetwork = null;
         let instance = null;
 
-        console.log("TOKEN", NFTToken);
         if (NFTToken.networks) {
           deployedNetwork = NFTToken.networks[networkId.toString()];
           if (deployedNetwork) {
@@ -58,8 +57,7 @@ class App extends Component {
               NFTToken.abi,
               deployedNetwork && deployedNetwork.address
             );
-            console.log("Token is deployed and found");
-              appReady = true;
+            appReady = true;
           }
         }
 
@@ -103,15 +101,16 @@ class App extends Component {
     if (!this.state.web3) {
       return this.renderLoader();
     }
-    console.log("State: ", this.state.appReady);
-
     return (
       <div className={styles.App}>
         <h1>Token Wallet</h1>
 
         {/* <Web3Info {...this.state} /> */}
-        {this.state.appReady ? <NFTToken {...this.state}/> : <div>App not Ready</div>}
-
+        {this.state.appReady ? (
+          <NFTToken {...this.state} />
+        ) : (
+          <div>App not Ready</div>
+        )}
       </div>
     );
   }
