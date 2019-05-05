@@ -52,7 +52,6 @@ export default class NFTToken extends Component {
     //Store your subscriptions to be unsubscribed at unmounting
     this.subscriptionTo = to;
     this.subscriptionFrom = from;
-    
   }
 
   async userTokenBalance() {
@@ -130,6 +129,7 @@ export default class NFTToken extends Component {
 
     const getTokenURI = async tokenId => {
       let uri = await contract.methods.tokenURI(tokenId).call();
+      uri = JSON.parse(uri);
       return uri;
     };
 
@@ -174,9 +174,9 @@ export default class NFTToken extends Component {
   handleMintToken = async event => {
     const { accounts, contract, web3 } = this.props;
     let color = "#" + Math.floor(Math.random() * 16777215).toString(16);
-    let background = "#" + Math.floor(Math.random() * 16777215).toString(16);
+    let bgcolor = "#" + Math.floor(Math.random() * 16777215).toString(16);
     let seed = web3.utils.randomHex(32);
-    let uri = { seed, color, background };
+    let uri = { seed, color, bgcolor };
     uri = JSON.stringify(uri);
 
     //Remember Total supply is a String here
@@ -197,7 +197,9 @@ export default class NFTToken extends Component {
   }
 
   render() {
-    const { userTokens, contract } = this.props;
+    const { contract } = this.props;
+    const { userTokenURIs, userTokens, tokenId, addressBar } = this.state;
+    console.log("UserTokens: ", userTokens, " UserTokenURIS: ", userTokenURIs);
     return (
       <div className={styles.web3}>
         <h3>NFT Token Wallet:</h3>
@@ -208,28 +210,31 @@ export default class NFTToken extends Component {
         <div className={styles.dataPoint}>
           <div className={styles.label}>Tokens:</div>
           <div className={styles.tokenList}>
-            {this.state.userTokens.map((item, i) => (
-              <div
-                className={styles.token}
-                onClick={event => this.handleSelectToken(item)}
-              >
-                <Blockie
+            {userTokens.map((item, i) => {
+              return (
+                <div
                   className={styles.token}
-                  opts={{
-                    seed: item,
-                    color: "#dfe",
-                    bgcolor: "#a71",
-                    size: 15,
-                    scale: 3
-                  }}
-                />
-              </div>
-            ))}
+                  key={i}
+                  onClick={event => this.handleSelectToken(item)}
+                >
+                  <Blockie
+                    className={styles.token}
+                    opts={{
+                      seed: userTokenURIs[item].seed,
+                      color: userTokenURIs[item].color,
+                      bgcolor: userTokenURIs[item].bgcolor,
+                      size: 15,
+                      scale: 3
+                    }}
+                  />
+                </div>
+              );
+            })}
           </div>
         </div>
         <div>
           Selected token:
-          <div>{this.state.tokenId}</div>
+          <div>{tokenId}</div>
         </div>
         <div>
           <form>
@@ -237,7 +242,7 @@ export default class NFTToken extends Component {
               Name:
               <Input
                 type="text"
-                placeholder={this.state.addressBar}
+                placeholder={addressBar}
                 name="name"
                 onChange={this.handleAddressBarChange}
               />
