@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import getWeb3, { getGanacheWeb3 } from "./utils/getWeb3";
+import getWeb3 from "./utils/getWeb3";
 import NFTToken from "./components/NFTToken/index";
 import { Loader } from "rimble-ui";
 
