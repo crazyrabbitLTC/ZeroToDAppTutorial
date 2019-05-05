@@ -4,6 +4,8 @@ import styles from "./NFTToken.module.scss";
 
 export default class NFTToken extends Component {
   state = {
+    tokenName: "",
+    tokenSymbol: "",
     totalSupply: 0,
     userBalance: 0,
     userTokens: [],
@@ -19,11 +21,11 @@ export default class NFTToken extends Component {
   componentDidMount = async () => {
     await this.userTokenBalance();
     await this.refreshOnTokenTransfer();
+    await this.loadTokenDetails();
   };
 
   async refreshOnTokenTransfer() {
     const { accounts, contract } = this.props;
-    const { userTokens } = this.state;
     const filterTo = { to: accounts[0] };
     const filterFrom = { from: accounts[0] };
 
@@ -141,8 +143,14 @@ export default class NFTToken extends Component {
     });
   }
 
+  async loadTokenDetails() {
+    const { contract, web3 } = this.props;
+    const tokenName = await contract.methods.name().call();
+    const tokenSymbol = await contract.methods.symbol().call();
+    this.setState({ ...this.state, tokenName, tokenSymbol });
+  }
+
   handleAddressBarChange = event => {
-    console.log("The change is: ", event.target.value);
     this.setState({ ...this.state, addressBar: event.target.value });
   };
 
@@ -154,11 +162,9 @@ export default class NFTToken extends Component {
       let tx = contract.methods
         .transferFrom(accounts[0], this.state.addressBar, this.state.tokenId)
         .send({ from: accounts[0], gas: 5000000 });
-      console.log(tx);
       this.setState({ ...this.state, addressBar: "" });
     } else {
-      let addressBar = "Invalid Address";
-      this.setState({ ...this.state, addressBar });
+      this.setState({ ...this.state, addressBar: "Invalid Address" });
     }
   };
 
@@ -194,11 +200,10 @@ export default class NFTToken extends Component {
 
   render() {
     const { contract } = this.props;
-    const { userTokenURIs, userTokens, tokenId, addressBar } = this.state;
-    console.log("UserTokens: ", userTokens, " UserTokenURIS: ", userTokenURIs);
+    const { userTokenURIs, userTokens, tokenId, addressBar, tokenName } = this.state;
     return (
       <div className={styles.web3}>
-        <h3>NFT Token Wallet:</h3>
+        <h3>{tokenName} Wallet:</h3>
         <div className={styles.dataPoint}>
           <div className={styles.label}>Contract Address:</div>
           <div className={styles.valueSmall}>{contract._address}</div>
@@ -234,7 +239,6 @@ export default class NFTToken extends Component {
         <div>
           <form>
             <label>
-              Name:
               <Input
                 type="text"
                 placeholder={addressBar}
@@ -253,42 +257,6 @@ export default class NFTToken extends Component {
             Send Token
           </Button>
         </div>
-
-        {/* <h3> Your Web3 Info </h3>
-        <div className={styles.dataPoint}>
-          <div className={styles.label}>
-            Network:
-          </div>
-          <div className={styles.value}>
-            {networkId} - {this.renderNetworkName(networkId)}
-          </div>
-        </div>
-        <div className={styles.dataPoint}>
-          <div className={styles.label}>
-            Your address:
-          </div>
-          <div className={styles.value}>
-            <PublicAddress address={accounts[0]}/>
-            <Blockie
-              opts={{seed: accounts[0], size: 15, scale: 3}} />
-          </div>
-        </div>
-        <div className={styles.dataPoint}>
-          <div className={styles.label}>
-            Your ETH balance:
-          </div>
-          <div className={styles.value}>
-            {balance}
-          </div>
-        </div>
-        <div className={styles.dataPoint}>
-          <div className={styles.label}>
-            Using Metamask:
-          </div>
-          <div className={styles.value}>
-            {isMetaMask ? 'YES' : 'NO'}
-          </div>
-        </div> */}
       </div>
     );
   }
