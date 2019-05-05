@@ -11,8 +11,11 @@ export default class NFTToken extends Component {
     userTokens: [],
     addressBar: "...ETH Address",
     tokenId: "",
-    lastCheckedBlock: null,
+    lastCheckedBlock: null
   };
+
+  subscriptionTo = null;
+  subscriptionFrom = null;
 
   componentDidMount = async () => {
     await this.getUserTokenBalance();
@@ -24,23 +27,38 @@ export default class NFTToken extends Component {
     console.log("in refresh on trasnfer");
     const filterTo = { to: accounts[0] };
     const filterFrom = { from: accounts[0] };
- 
-    await contract.events.Transfer({
-      filter: filterTo,
-      fromBlock: this.state.lastCheckedBlock + 1,  
-    }).on('data', (event) => {
-      console.log(event);
-      this.forceUpdate();
-    })
 
-    await contract.events.Transfer({
-      filter: filterFrom,
-      fromBlock: this.state.lastCheckedBlock + 1,  
-    }).on('data', (event) => {
-      console.log(event);
-      this.forceUpdate();
-    })
+    const to = await contract.events
+      .Transfer({
+        filter: filterTo,
+        fromBlock: this.state.lastCheckedBlock + 1
+      })
+      .on("data", event => {
+        // Check out your Event
+        // console.log(event);
+      });
 
+    const from = await contract.events
+      .Transfer({
+        filter: filterFrom,
+        fromBlock: this.state.lastCheckedBlock + 1
+      })
+      .on("data", event => {
+        // Check out your Event
+        // console.log(event);
+      });
+
+    //Store your subscriptions to be unsubscribed at unmounting
+    this.subscriptionTo = to;
+    this.subscriptionFrom = from;
+
+    //Here are your subscriptions for cleanup
+    //console.log("TO/FROM: ", to, from);
+  }
+
+  componentWillUnmount(){
+    if(this.subscriptionFrom) this.subscriptionFrom.unsubscribe(); 
+    if(this.subscriptionTo) this.subscriptionTo.unsubscribe(); 
   }
   async getUserTokenBalance() {
     const { accounts, contract, web3 } = this.props;
@@ -103,7 +121,13 @@ export default class NFTToken extends Component {
 
     //
 
-    this.setState({ ...this.state, totalSupply, userBalance, userTokens, lastCheckedBlock });
+    this.setState({
+      ...this.state,
+      totalSupply,
+      userBalance,
+      userTokens,
+      lastCheckedBlock
+    });
   }
 
   handleChange = event => {
