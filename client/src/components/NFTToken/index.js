@@ -11,7 +11,9 @@ export default class NFTToken extends Component {
     userTokens: [],
     addressBar: "...ETH Address",
     tokenId: "",
-    lastCheckedBlock: null
+    lastCheckedBlock: null,
+    tokensLoaded: false,
+    userTokenURIs: {}
   };
 
   subscriptionTo = null;
@@ -63,6 +65,7 @@ export default class NFTToken extends Component {
     const filterFrom = { from: accounts[0] };
     const lastCheckedBlock = await web3.eth.getBlockNumber();
     let userTokens;
+    let userTokenURIs = {};
 
     //Get the list of tokens sent to this address
     const countTransfersToAddress = await contract.getPastEvents("Transfer", {
@@ -112,12 +115,35 @@ export default class NFTToken extends Component {
       countTransfersFromAddress
     );
 
+    const asyncForEach = async (array, callback) => {
+      for (let index = 0; index < array.length; index++) {
+        await callback(array[index], index, array);
+      }
+    };
+
+    const asyncTokenURILoad = async tokenArray => {
+      let userTokenURIs = {};
+      await asyncForEach(tokenArray, async token => {
+        let tokenId = Number(token);
+        userTokenURIs[tokenId] = await getTokenURI(tokenId);
+      });
+      return userTokenURIs;
+    };
+
+    const getTokenURI = async tokenId => {
+      let uri = await contract.methods.tokenURI(tokenId).call();
+      return uri;
+    };
+
+    userTokenURIs = await asyncTokenURILoad(userTokens);
+
     this.setState({
       ...this.state,
       totalSupply,
       userBalance,
       userTokens,
-      lastCheckedBlock
+      lastCheckedBlock,
+      userTokenURIs
     });
   }
 
@@ -155,7 +181,8 @@ export default class NFTToken extends Component {
     let uri = { seed, color, background };
     uri = JSON.stringify(uri);
 
-    let tokenId = this.state.totalSupply + 1;
+    //Remember Total supply is a String here
+    let tokenId = Number(this.state.totalSupply) + 1;
 
     try {
       let mint = await contract.methods
