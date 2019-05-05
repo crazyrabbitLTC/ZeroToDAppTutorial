@@ -18,16 +18,6 @@ class App extends Component {
     };
   }
 
-  getGanacheAddresses = async () => {
-    if (!this.ganacheProvider) {
-      this.ganacheProvider = getGanacheWeb3();
-    }
-    if (this.ganacheProvider) {
-      return await this.ganacheProvider.eth.getAccounts();
-    }
-    return [];
-  };
-
   componentDidMount = async () => {
     let appReady = false;
     const loadApp = async () => {
@@ -36,7 +26,6 @@ class App extends Component {
         if (!isProd) {
           // Get network provider and web3 instance.
           const web3 = await getWeb3();
-          const ganacheAccounts = await this.getGanacheAddresses();
           // Use web3 to get the user's accounts.
           const accounts = await web3.eth.getAccounts();
           // Get the contract instance.
@@ -70,7 +59,6 @@ class App extends Component {
           }
           this.setState({
             web3,
-            ganacheAccounts,
             accounts,
             contract: instance,
             balance,
