@@ -17,6 +17,7 @@ export default class NFTToken extends Component {
 
   subscriptionTo = null;
   subscriptionFrom = null;
+  subscribeToNetworkChange = null;
 
   componentDidMount = async () => {
     await this.userTokenBalance();
@@ -144,7 +145,7 @@ export default class NFTToken extends Component {
   }
 
   async loadTokenDetails() {
-    const { contract} = this.props;
+    const { contract } = this.props;
     const tokenName = await contract.methods.name().call();
     const tokenSymbol = await contract.methods.symbol().call();
     this.setState({ ...this.state, tokenName, tokenSymbol });
@@ -196,11 +197,19 @@ export default class NFTToken extends Component {
   componentWillUnmount() {
     if (this.subscriptionFrom) this.subscriptionFrom.unsubscribe();
     if (this.subscriptionTo) this.subscriptionTo.unsubscribe();
+    if (this.subscribeToNetworkChange)
+      this.subscribeToNetworkChange.unsubscribe();
   }
 
   render() {
     const { contract } = this.props;
-    const { userTokenURIs, userTokens, tokenId, addressBar, tokenName } = this.state;
+    const {
+      userTokenURIs,
+      userTokens,
+      tokenId,
+      addressBar,
+      tokenName
+    } = this.state;
     return (
       <div className={styles.web3}>
         <h3>{tokenName} Wallet:</h3>
