@@ -12,7 +12,8 @@ class App extends Component {
     web3: null,
     accounts: null,
     contract: null,
-    route: window.location.pathname.replace("/", "")
+    route: window.location.pathname.replace("/", ""),
+    appReady: false,
   };
 
   getGanacheAddresses = async () => {
@@ -26,6 +27,7 @@ class App extends Component {
   };
 
   componentDidMount = async () => {
+    let appReady = false;
     try {
       const isProd = process.env.NODE_ENV === "production";
       if (!isProd) {
@@ -48,6 +50,7 @@ class App extends Component {
         let deployedNetwork = null;
         let instance = null;
 
+        console.log("TOKEN", NFTToken);
         if (NFTToken.networks) {
           deployedNetwork = NFTToken.networks[networkId.toString()];
           if (deployedNetwork) {
@@ -55,6 +58,8 @@ class App extends Component {
               NFTToken.abi,
               deployedNetwork && deployedNetwork.address
             );
+            console.log("Token is deployed and found");
+              appReady = true;
           }
         }
 
@@ -65,7 +70,8 @@ class App extends Component {
           contract: instance,
           balance,
           networkId,
-          isMetaMask
+          isMetaMask,
+          appReady
         });
       }
     } catch (error) {
@@ -97,12 +103,15 @@ class App extends Component {
     if (!this.state.web3) {
       return this.renderLoader();
     }
+    console.log("State: ", this.state.appReady);
+
     return (
       <div className={styles.App}>
         <h1>Token Wallet</h1>
 
         {/* <Web3Info {...this.state} /> */}
-        <NFTToken {...this.state}/>
+        {this.state.appReady ? <NFTToken {...this.state}/> : <div>App not Ready</div>}
+
       </div>
     );
   }

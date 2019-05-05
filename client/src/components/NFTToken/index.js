@@ -10,29 +10,53 @@ export default class NFTToken extends Component {
     userBalance: 0,
     userTokens: [],
     addressBar: "...ETH Address",
-    tokenId: ""
+    tokenId: "",
+    lastCheckedBlock: null,
   };
 
   componentDidMount = async () => {
-    const { networkId, accounts, balance, isMetaMask, contract } = this.props;
+    await this.getUserTokenBalance();
+    await this.refreshOnTokenTrasnfer();
+  };
+
+  async refreshOnTokenTrasnfer() {
+    const { accounts, contract } = this.props;
+    console.log("in refresh on trasnfer");
+    const filterTo = { to: accounts[0] };
+    const filterFrom = { from: accounts[0] };
+ 
+    await contract.events.Transfer({
+      filter: filterTo,
+      fromBlock: this.state.lastCheckedBlock + 1,  
+    }).on('data', (event) => {
+      console.log(event);
+      this.forceUpdate();
+    })
+
+  }
+  async getUserTokenBalance() {
+    const { accounts, contract, web3 } = this.props;
     let userBalance = await contract.methods.balanceOf(accounts[0]).call();
     let totalSupply = await contract.methods.totalSupply().call();
     const filterTo = { to: accounts[0] };
     const filterFrom = { from: accounts[0] };
+    const lastCheckedBlock = await web3.eth.getBlockNumber();
     let userTokens;
-
+    //Get the list of tokens sent to this address
     const countTransfersToAddress = await contract.getPastEvents("Transfer", {
       filter: filterTo,
       fromBlock: 0,
       toBlock: "latest"
     });
 
+    //Get the list of tokens this address sent away
     const countTransfersFromAddress = await contract.getPastEvents("Transfer", {
       filter: filterFrom,
       fromBlock: 0,
       toBlock: "latest"
     });
 
+    //Function to Calculate the Total Users Balance
     const getUserTokenBalance = (to, from) => {
       let obj = {};
       to.forEach(el => {
@@ -51,25 +75,28 @@ export default class NFTToken extends Component {
       });
       console.log(obj);
 
-      for(let key in obj){
-        if(obj.hasOwnProperty(key)){
+      for (let key in obj) {
+        if (obj.hasOwnProperty(key)) {
           if (obj[key] === 0) {
             delete obj[key];
           }
         }
       }
       console.log(obj);
-      
+
       return Object.keys(obj);
     };
 
+    //Get Users token balance
     userTokens = getUserTokenBalance(
       countTransfersToAddress,
       countTransfersFromAddress
     );
 
-    this.setState({ ...this.state, totalSupply, userBalance, userTokens });
-  };
+    //
+
+    this.setState({ ...this.state, totalSupply, userBalance, userTokens, lastCheckedBlock });
+  }
 
   handleChange = event => {
     console.log("The change is: ", event.target.value);
@@ -148,6 +175,10 @@ export default class NFTToken extends Component {
               </div>
             ))}
           </div>
+        </div>
+        <div>
+          Selected token:
+          <div>{this.state.tokenId}</div>
         </div>
         <div>
           <form>

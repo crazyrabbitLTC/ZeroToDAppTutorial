@@ -43,6 +43,7 @@
   }
   .tokenList{
     display: flex;
+    flex-wrap: wrap;
   }
   .token {
     margin: 4px;
