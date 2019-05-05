@@ -144,7 +144,7 @@ export default class NFTToken extends Component {
   }
 
   async loadTokenDetails() {
-    const { contract, web3 } = this.props;
+    const { contract} = this.props;
     const tokenName = await contract.methods.name().call();
     const tokenSymbol = await contract.methods.symbol().call();
     this.setState({ ...this.state, tokenName, tokenSymbol });
@@ -159,7 +159,7 @@ export default class NFTToken extends Component {
     const { accounts, contract, web3 } = this.props;
 
     if (web3.utils.isAddress(this.state.addressBar)) {
-      let tx = contract.methods
+      await contract.methods
         .transferFrom(accounts[0], this.state.addressBar, this.state.tokenId)
         .send({ from: accounts[0], gas: 5000000 });
       this.setState({ ...this.state, addressBar: "" });
