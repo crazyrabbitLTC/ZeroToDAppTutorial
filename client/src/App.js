@@ -30,7 +30,6 @@ class App extends Component {
 
   componentDidMount = async () => {
     let appReady = false;
-    let subscribeToNetworkChange = null;
     const loadApp = async () => {
       try {
         const isProd = process.env.NODE_ENV === "production";
