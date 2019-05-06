@@ -3,17 +3,20 @@ import { Blockie, Button, Input } from "rimble-ui";
 import styles from "./NFTToken.module.scss";
 
 export default class NFTToken extends Component {
-  state = {
-    tokenName: "",
-    tokenSymbol: "",
-    totalSupply: 0,
-    userBalance: 0,
-    userTokens: [],
-    addressBar: "...ETH Address",
-    tokenId: "",
-    lastCheckedBlock: null,
-    userTokenURIs: {}
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      tokenName: "",
+      tokenSymbol: "",
+      totalSupply: 0,
+      userBalance: 0,
+      userTokens: [],
+      addressBar: "...ETH Address",
+      tokenId: "",
+      lastCheckedBlock: null,
+      userTokenURIs: {}
+    };
+  }
 
   subscriptionTo = null;
   subscriptionFrom = null;
