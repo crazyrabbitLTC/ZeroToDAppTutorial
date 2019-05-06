@@ -79,12 +79,6 @@ class App extends Component {
     loadApp();
   };
 
-  componentWillUnmount() {
-    if (this.interval) {
-      clearInterval(this.interval);
-    }
-  }
-
   renderLoader() {
     return (
       <div className={styles.loader}>
