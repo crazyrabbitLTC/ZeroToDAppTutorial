@@ -28,7 +28,7 @@ export default class NFTToken extends Component {
     await this.loadTokenDetails();
   };
 
-  async refreshOnTokenTransfer() {
+  refreshOnTokenTransfer = async () => {
     const { accounts, contract } = this.props;
     const filterTo = { to: accounts[0] };
     const filterFrom = { from: accounts[0] };
@@ -54,9 +54,9 @@ export default class NFTToken extends Component {
     //Store your subscriptions to be unsubscribed at unmounting
     this.subscriptionTo = to;
     this.subscriptionFrom = from;
-  }
+  };
 
-  async userTokenBalance() {
+  userTokenBalance = async () => {
     const { accounts, contract, web3 } = this.props;
     let userBalance = await contract.methods.balanceOf(accounts[0]).call();
     let totalSupply = await contract.methods.totalSupply().call();
@@ -145,14 +145,14 @@ export default class NFTToken extends Component {
       lastCheckedBlock,
       userTokenURIs
     });
-  }
+  };
 
-  async loadTokenDetails() {
+  loadTokenDetails = async () => {
     const { contract } = this.props;
     const tokenName = await contract.methods.name().call();
     const tokenSymbol = await contract.methods.symbol().call();
     this.setState({ ...this.state, tokenName, tokenSymbol });
-  }
+  };
 
   handleAddressBarChange = event => {
     this.setState({ ...this.state, addressBar: event.target.value });
@@ -197,14 +197,14 @@ export default class NFTToken extends Component {
     }
   };
 
-  componentWillUnmount() {
+  componentWillUnmount = () => {
     if (this.subscriptionFrom) this.subscriptionFrom.unsubscribe();
     if (this.subscriptionTo) this.subscriptionTo.unsubscribe();
     if (this.subscribeToNetworkChange)
       this.subscribeToNetworkChange.unsubscribe();
-  }
+  };
 
-  render() {
+  render = () => {
     const { contract } = this.props;
     const {
       userTokenURIs,
@@ -271,5 +271,5 @@ export default class NFTToken extends Component {
         </div>
       </div>
     );
-  }
+  };
 }
